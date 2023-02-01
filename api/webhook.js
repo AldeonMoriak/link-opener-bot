@@ -60,3 +60,5 @@ app.get("/", async (req, res) => {
 app.listen(port, () => {
   console.log(`Link opener app listening on port ${port}`);
 });
+
+export default bot;

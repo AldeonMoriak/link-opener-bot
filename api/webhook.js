@@ -61,4 +61,4 @@ app.listen(port, () => {
   console.log(`Link opener app listening on port ${port}`);
 });
 
-export default bot;
+export default app;

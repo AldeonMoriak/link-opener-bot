@@ -11,27 +11,25 @@ const AbortController =
 
 const controller = new AbortController();
 
-async function callApi(url) {
-  const response = await fetch(url, {
-    signal: controller.signal,
-  });
-  return response.text();
-}
+const timeout = setTimeout(() => {
+  console.log("in timeout");
+  controller.abort();
+}, 7000);
 
 async function getApiCall(id, bot, msg) {
-  const timeout = setTimeout(() => {
-    console.log("in timeout");
-    controller.abort();
-  }, 7000);
   if (msg.split(".").length !== 2) {
     const message =
       "آدرست رو درست وارد کن. مثل این: something.antoher_thing \n آدرسی که وارد کردی: " +
       msg;
-    return bot.sendMessage(id, message, { parse_mode: "Markdown" });
+    console.log(message, id);
+    return bot.sendMessage(id, message);
   }
   const url = "https://" + msg + ".dopraxrocks.net";
   try {
-    const body = await callApi(url);
+    const response = await fetch(url, {
+      signal: controller.signal,
+    });
+    const body = response.text();
     if (!body.includes("Welcome")) {
       return getApiCall(id, bot, msg);
     }

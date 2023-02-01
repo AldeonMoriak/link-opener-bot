@@ -31,14 +31,16 @@ async function getApiCall(id, bot, msg) {
     });
     const body = response.text();
     if (!body.includes("Welcome")) {
-      return getApiCall(id, bot, msg);
+      // return getApiCall(id, bot, msg);
+      return bot.sendMessage(id, 'سرور بالا نیست');
     }
     const message = "سرور بالاست." + "\n\n `" + msg + "`";
     return bot.sendMessage(id, message, { parse_mode: "Markdown" });
   } catch (error) {
     if (error instanceof AbortError) {
       console.log("request was aborted");
-      return getApiCall(id, bot, msg);
+      return bot.sendMessage(id, 'تایم اوت');
+      // return getApiCall(id, bot, msg);
     } else if (error instanceof FetchError) {
       console.log("fetch error");
       console.log(error.toString());

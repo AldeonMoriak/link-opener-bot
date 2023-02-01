@@ -64,14 +64,7 @@ export default async function handler(request, response) {
         text,
       } = body.message;
 
-      console.log(text);
-      if (text === "/start") {
-        const message =
-          "آدرس دوپراکست رو بفرست برام.\n بین https و dopraxrocks.net منظورمه";
-        return bot.sendMessage(id, message, { parse_mode: "Markdown" });
-      } else {
-        return getApiCall(id, bot, text);
-      }
+      return getApiCall(id, bot, text);
     }
   } catch (error) {
     console.error("Error sending message");

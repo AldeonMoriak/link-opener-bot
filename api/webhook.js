@@ -1,18 +1,15 @@
-import express from "express";
-import { Telegraf } from "telegraf";
-import { message } from "telegraf/filters";
-import fetch, { AbortError } from "node-fetch";
+// https://github.com/yagop/node-telegram-bot-api/issues/319#issuecomment-324963294
+// Fixes an error with Promise cancellation
+process.env.NTBA_FIX_319 = "test";
+import fetch, { AbortError, FetchError } from "node-fetch";
 import * as dotenv from "dotenv";
+import TelegramBot from "node-telegram-bot-api";
 dotenv.config();
 
 const AbortController =
   globalThis.AbortController || (await import("abort-controller"));
 
 const controller = new AbortController();
-const port = "3000";
-const bot = new Telegraf(process.env.BOT_TOKEN);
-
-const app = express();
 
 async function callApi(url) {
   const response = await fetch(url, {
@@ -21,51 +18,57 @@ async function callApi(url) {
   return response.text();
 }
 
-async function getApiCall(ctx) {
-  const msg = ctx.message.text;
-  let url = "";
-  let body = "";
+async function getApiCall(id, bot, msg) {
+  const timeout = setTimeout(() => {
+    console.log("in timeout");
+    controller.abort();
+  }, 7000);
   if (msg.split(".").length !== 2) {
-    return ctx.reply(
+    const message =
       "آدرست رو درست وارد کن. مثل این: something.antoher_thing \n آدرسی که وارد کردی: " +
-        msg
-    );
+      msg;
+    return bot.sendMessage(id, message, { parse_mode: "Markdown" });
   }
-  url = "https://" + msg + ".dopraxrocks.net";
+  const url = "https://" + msg + ".dopraxrocks.net";
   try {
-    body = await callApi(url);
+    const body = await callApi(url);
     if (!body.includes("Welcome")) {
-      await getApiCall(ctx);
+      return getApiCall(id, bot, msg);
     }
+    const message = "سرور بالاست." + "\n\n `" + msg + "`";
+    return bot.sendMessage(id, message, { parse_mode: "Markdown" });
   } catch (error) {
     if (error instanceof AbortError) {
       console.log("request was aborted");
-      await getApiCall(ctx);
+      return getApiCall(id, bot, msg);
+    } else if (error instanceof FetchError) {
+      console.log("fetch error");
+      console.log(error.toString());
+      const message = "آدرس اشتباه"
+      return bot.sendMessage(id, message, { parse_mode: "Markdown" });
     }
+  } finally {
+    clearTimeout(timeout);
   }
-  return ctx.replyWithMarkdown("سرور بالاست." + "\n\n `" + msg + "`");
 }
 
-bot.start((ctx) =>
-  ctx.reply(
-    "آدرس دوپراکست رو بده تا رکوئست بدم بهش. بین https و dopraxrocks.net منظورمه"
-  )
-);
-bot.on(message("text"), getApiCall);
-bot.launch({
-  webhook: {
-    domain: "https://link-opener-bot.vercel.app",
-    port: "8080",
-    hookPath: "api/webhook",
-  },
-});
+export default async function handler(request, response) {
+  try {
+    const bot = new TelegramBot(process.env.BOT_TOKEN);
 
-app.get("/api/webhook", async (req, res) => {
-  res.setHeader("Content-Type", "text/html");
-  res.setHeader("Cache-Control", "s-max-age=1, stale-while-revalidate");
-  res.end("hello");
-});
+    const { body } = request;
 
-app.listen(port, () => {
-  console.log(`Link opener app listening on port ${port}`);
-});
+    if (body.message) {
+      const {
+        chat: { id },
+        text,
+      } = body.message;
+
+      await getApiCall(id, bot, text);
+    }
+  } catch (error) {
+    console.error("Error sending message");
+    console.log(error.toString());
+  }
+  response.send("OK");
+}

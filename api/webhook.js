@@ -44,7 +44,7 @@ async function getApiCall(id, bot, msg) {
     } else if (error instanceof FetchError) {
       console.log("fetch error");
       console.log(error.toString());
-      const message = "آدرس اشتباه"
+      const message = "آدرس اشتباه";
       return bot.sendMessage(id, message, { parse_mode: "Markdown" });
     }
   } finally {
@@ -64,7 +64,11 @@ export default async function handler(request, response) {
         text,
       } = body.message;
 
-      await getApiCall(id, bot, text);
+      if (text === "/start") {
+        const message = "آدرس دوپراکست رو بفرست برام.\n بین https و dopraxrocks.net منظورمه"
+        return bot.sendMessage(id, message, { parse_mode: "Markdown" });
+      }
+      return getApiCall(id, bot, text);
     }
   } catch (error) {
     console.error("Error sending message");

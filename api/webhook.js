@@ -46,6 +46,8 @@ async function getApiCall(id, bot, msg) {
       console.log(error.toString());
       const message = "آدرس اشتباه";
       return bot.sendMessage(id, message, { parse_mode: "Markdown" });
+    } else {
+      return bot.sendMessage(id, error.toString())
     }
   } finally {
     clearTimeout(timeout);

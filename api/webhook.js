@@ -58,7 +58,7 @@ export default async function handler(request, response) {
 
     const { body } = request;
 
-    if (body.message) {
+    if (body && body.message) {
       const {
         chat: { id },
         text,

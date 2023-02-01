@@ -64,7 +64,7 @@ export default async function handler(request, response) {
         text,
       } = body.message;
 
-      return getApiCall(id, bot, text);
+      await getApiCall(id, bot, text);
     }
   } catch (error) {
     console.error("Error sending message");

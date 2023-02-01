@@ -51,7 +51,7 @@ bot.start((ctx) =>
 bot.on(message("text"), getApiCall);
 bot.launch();
 
-app.get("/", async (req, res) => {
+app.get("/api/webhook", async (req, res) => {
   res.setHeader("Content-Type", "text/html");
   res.setHeader("Cache-Control", "s-max-age=1, stale-while-revalidate");
   res.end('hello');

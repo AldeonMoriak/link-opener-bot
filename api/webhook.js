@@ -26,12 +26,15 @@ async function getApiCall(ctx) {
   let url = "";
   let body = "";
   if (msg.split(".").length !== 2) {
-    return ctx.reply("آدرست رو درست وارد کن. مثل این: something.antoher_thing \n آدرسی که وارد کردی: " + msg);
+    return ctx.reply(
+      "آدرست رو درست وارد کن. مثل این: something.antoher_thing \n آدرسی که وارد کردی: " +
+        msg
+    );
   }
   url = "https://" + msg + ".dopraxrocks.net";
   try {
     body = await callApi(url);
-    if(!body.includes('Welcome')) {
+    if (!body.includes("Welcome")) {
       await getApiCall(ctx);
     }
   } catch (error) {
@@ -39,8 +42,8 @@ async function getApiCall(ctx) {
       console.log("request was aborted");
       await getApiCall(ctx);
     }
-  } 
-  return ctx.replyWithMarkdown("سرور بالاست." + "\n\n `"+ msg + "`");
+  }
+  return ctx.replyWithMarkdown("سرور بالاست." + "\n\n `" + msg + "`");
 }
 
 bot.start((ctx) =>
@@ -49,12 +52,18 @@ bot.start((ctx) =>
   )
 );
 bot.on(message("text"), getApiCall);
-bot.launch();
+bot.launch({
+  webhook: {
+    domain: "https://link-opener-bot.vercel.app",
+    port: "8080",
+    hookPath: "api/webhook",
+  },
+});
 
 app.get("/api/webhook", async (req, res) => {
   res.setHeader("Content-Type", "text/html");
   res.setHeader("Cache-Control", "s-max-age=1, stale-while-revalidate");
-  res.end('hello');
+  res.end("hello");
 });
 
 app.listen(port, () => {

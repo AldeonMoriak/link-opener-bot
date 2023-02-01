@@ -14,7 +14,7 @@ const controller = new AbortController();
 const timeout = setTimeout(() => {
   console.log("in timeout");
   controller.abort();
-}, 7000);
+}, 10000);
 
 async function getApiCall(id, bot, msg) {
   if (msg.split(".").length !== 2) {
@@ -29,7 +29,7 @@ async function getApiCall(id, bot, msg) {
     const response = await fetch(url, {
       signal: controller.signal,
     });
-    const body = response.text();
+    const body = await response.text();
     if (!body.includes("Welcome")) {
       // return getApiCall(id, bot, msg);
       return bot.sendMessage(id, 'سرور بالا نیست');

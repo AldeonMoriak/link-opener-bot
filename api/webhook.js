@@ -23,6 +23,8 @@ async function getBestIps(id, bot) {
       signal: controller.signal,
     });
     let body = await response.text();
+    const lines = body.split('\n')
+    console.log(lines[0], '***', lines[1])
     body = body.substring(0, 300)
     return bot.sendMessage(id, body, { parse_mode: "Markdown" });
   } catch (error) {

@@ -22,7 +22,8 @@ async function getBestIps(id, bot) {
     const response = await fetch(url, {
       signal: controller.signal,
     });
-    const body = await response.text();
+    let body = await response.text();
+    body = body.substring(0, 300)
     return bot.sendMessage(id, body, { parse_mode: "Markdown" });
   } catch (error) {
     if (error instanceof AbortError) {

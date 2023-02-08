@@ -25,7 +25,7 @@ async function getBestIps(id, bot) {
     let body = await response.text();
     const lines = body.split('\n')
     console.log(lines[0], '***', lines[1])
-    body = body.substring(0, 300)
+    body = body.substring(0, 1000)
     return bot.sendMessage(id, body, { parse_mode: "Markdown" });
   } catch (error) {
     if (error instanceof AbortError) {

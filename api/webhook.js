@@ -16,6 +16,32 @@ const timeout = setTimeout(() => {
   controller.abort();
 }, 10000);
 
+async function getBestIps(id, bot) {
+  const url = "http://bot.sudoer.net/best.cf.iran.all";
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+    });
+    const body = await response.text();
+    return bot.sendMessage(id, body, { parse_mode: "Markdown" });
+  } catch (error) {
+    if (error instanceof AbortError) {
+      console.log("request was aborted");
+      return bot.sendMessage(id, 'تایم اوت');
+      // return getApiCall(id, bot, msg);
+    } else if (error instanceof FetchError) {
+      console.log("fetch error");
+      console.log(error.toString());
+      const message = "آدرس اشتباه";
+      return bot.sendMessage(id, message, { parse_mode: "Markdown" });
+    } else {
+      return bot.sendMessage(id, error.toString())
+    }
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function getApiCall(id, bot, msg) {
   if (msg.split(".").length !== 2) {
     const message =
@@ -66,7 +92,8 @@ export default async function handler(request, response) {
         text,
       } = body.message;
 
-      await getApiCall(id, bot, text);
+      if(text !== 'xxx') await getApiCall(id, bot, text);
+      else await getBestIps(id, bot)
     }
   } catch (error) {
     console.error("Error sending message");

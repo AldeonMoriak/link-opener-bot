@@ -16,7 +16,7 @@ const timeout = setTimeout(() => {
   controller.abort();
 }, 10000);
 
-async function getBestIps(id, bot) {
+async function getBestIps(id, bot, msg) {
   const url = "http://bot.sudoer.net/best.cf.iran.all";
   try {
     const response = await fetch(url, {
@@ -24,9 +24,15 @@ async function getBestIps(id, bot) {
     });
     let body = await response.text();
     const lines = body.split('\n')
-    console.log(lines[0], '***', lines[1])
-    body = body.substring(0, 1000)
-    return bot.sendMessage(id, body, { parse_mode: "Markdown" });
+    const type = msg.split(' ')[1]
+    const ips = []
+    for (let line of lines) {
+      const lineArr = line.split('\t')
+      if(lineArr.at(-1).includes(type.toUpperCase())) {
+        ips.push(lineArr.at(0))
+      }
+    }
+    return bot.sendMessage(id, ips.map(ip => `\`${ip}\``), { parse_mode: "Markdown" });
   } catch (error) {
     if (error instanceof AbortError) {
       console.log("request was aborted");
@@ -95,8 +101,8 @@ export default async function handler(request, response) {
         text,
       } = body.message;
 
-      if(text !== 'xxx') await getApiCall(id, bot, text);
-      else await getBestIps(id, bot)
+      if(!text.includes('get')) await getApiCall(id, bot, text);
+      else await getBestIps(id, bot, text)
     }
   } catch (error) {
     console.error("Error sending message");

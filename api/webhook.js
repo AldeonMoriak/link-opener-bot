@@ -32,7 +32,9 @@ async function getBestIps(id, bot, msg) {
         ips.push(lineArr.at(0))
       }
     }
-    return bot.sendMessage(id, ips.map(ip => `\`${ip}\``), { parse_mode: "Markdown" });
+    const message = ips.map(ip => `\`${ip}\``).join('\n');
+    console.log(message)
+    return bot.sendMessage(id, message, { parse_mode: "Markdown" });
   } catch (error) {
     if (error instanceof AbortError) {
       console.log("request was aborted");

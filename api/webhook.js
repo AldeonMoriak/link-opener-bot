@@ -32,7 +32,7 @@ async function getBestIps(id, bot, msg) {
         ips.push(lineArr.at(0))
       }
     }
-    const message = ips.slice(0, 50).map((ip, index) => `${index + 1}-\t\t\`${ip}\``).join('\n');
+    const message = ips.slice(0, 50).map((ip, index) => `${index + 1}-\t\t\`${ip}\`\n`).join('\n');
     return bot.sendMessage(id, message, { parse_mode: "Markdown" });
   } catch (error) {
     if (error instanceof AbortError) {
